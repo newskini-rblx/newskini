@@ -49,6 +49,7 @@ const W=1920,H=1200;
 const $=id=>document.getElementById(id);
 const drop=$('drop'),file=$('file'),out=$('out'),result=$('result'),msg=$('msg');
 let blob=null,name='image',cur=null,zoomOn=false;
+// Zoom is centred, so the logo is cut out by zooming around the middle of the picture.
 // Top-left area (in pixels of a 1920-wide screenshot) occupied by the Roblox logo + menu button, plus a safety margin
 const LOGO_X=170,LOGO_Y=100;
 const wm=new Image();wm.src=WM_SRC;
@@ -102,9 +103,10 @@ async function render(){
       const k=Math.max(1,iw/W),ax=LOGO_X*k,ay=LOGO_Y*k;
       const dx=Math.max(0,ax-bx),dy=Math.max(0,ay-by);
       if(dx>0||dy>0){
-        const s=Math.max(bw/Math.max(bw-dx,1),bh/Math.max(bh-dy,1));
+        // Zoom around the CENTRE of the crop, so the picture stays centred; zoom just enough that the logo falls outside
+        const s=Math.min(3,Math.max(bw/Math.max(bw-2*dx,1),bh/Math.max(bh-2*dy,1)));
         const nw=bw/s,nh=bh/s;
-        bx+=bw-nw;by+=bh-nh;bw=nw;bh=nh;
+        bx+=(bw-nw)/2;by+=(bh-nh)/2;bw=nw;bh=nh;
         note='Roblox logo was in the crop: enlarged '+Math.round(W/bw*100)+'% and cropped it out.';
       }else note='Roblox logo is outside the centre crop: no extra enlarging needed.';
       g.drawImage(img,bx,by,bw,bh,0,0,W,H);
